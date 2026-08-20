@@ -1,0 +1,4 @@
+1. setup project using nest js cli
+2. install prisma at root level prisma/schema.prisma file and generate prisma client and model using prisma schema file
+3. install pg, @prisma/client, prisma-adapter-pg in src/prisma folder and create prisma service as wrapper for the user and other modules
+ 
