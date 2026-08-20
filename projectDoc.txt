@@ -1,4 +1,5 @@
 1. setup project using nest js cli
 2. install prisma at root level prisma/schema.prisma file and generate prisma client and model using prisma schema file
 3. install pg, @prisma/client, prisma-adapter-pg in src/prisma folder and create prisma service as wrapper for the user and other modules
- 
+4. run the command npx prisma generate  create the prisma client then after ran npx migrate dev to create the coulmns directly in postgres db from the schema
+
