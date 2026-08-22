@@ -24,10 +24,24 @@ role Role @default(USER)
 createdAt DateTime @default(now())
 updatedAt DateTime @updatedAt
 address String
-
+  userSessions UserSession[]
 }
 
 enum Role { 
   USER 
   ADMIN 
-} 
+}
+
+model UserSession {
+  sessionId        String   @id @default(uuid())
+  userId           Int //this is the actual column that will be created in your PostgreSQL database table
+  user             User     @relation(fields: [userId], references: [id])  // This does not exist as a column in your actual database. Instead, it is used by Prisma in your TypeScript code to let you easily retrieve the connected User object   
+  // @relation(fields: [userId], references: [id]) is a configuration that tells Prisma:
+  //"Link the user relation field by matching the value in the database column userId with the id column of the User model."
+  refreshTokenHash String
+  device           String
+  userAgent        String
+  expiresAt        DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
