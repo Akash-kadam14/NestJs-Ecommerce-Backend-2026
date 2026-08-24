@@ -6,3 +6,7 @@
 6. we add Prisma module gloabally so all modules can access install
 7. we create a user dto with validation using class-validator and class-transformer
 8. create a user/createUser route in controller and test the DTO validation  
+9. started create a login route in auth controller and create a loginDto
+10. implement authentication using bcrypt and jwt token
+11. create a UserSession schema for multiple device login and migrate it using prisma migrate dev 
+12. on user login generate and store both access token and refresh token 
