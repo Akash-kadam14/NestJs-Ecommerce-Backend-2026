@@ -3,6 +3,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/loginDto';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
+import { getDevice, hashedRefreshToken } from 'src/helper/commonHelper';
+
 @Injectable()
 export class AuthService {
     constructor(
@@ -13,7 +16,7 @@ export class AuthService {
 
     // authenticate user 
 
-    async login(loginDto: LoginDto) {
+    async login(loginDto: LoginDto, userAgent) {
         const user = await this.prisma.user.findUnique({ where: { email: loginDto.email } });
         if (!user) {
             throw new UnauthorizedException('User not found');
@@ -35,6 +38,27 @@ export class AuthService {
             expiresIn: '24h'
         })
 
+        // hash refresh token
+        const hashedToken = hashedRefreshToken(refreshToken);
+
+        // identify device
+        const device = getDevice(userAgent);
+
+        // save user login session in userSesison table
+        const sessionId = crypto.randomUUID();
+
+        await this.prisma.userSession.create({
+            data: {
+                sessionId,
+                userId: user.id,
+                device,
+                refreshTokenHash: hashedToken,
+                userAgent,
+                expiresAt: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+            },
+        });
+
+        return { accessToken, refreshToken };
 
     }
 
