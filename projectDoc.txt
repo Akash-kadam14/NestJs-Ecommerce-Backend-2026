@@ -12,4 +12,7 @@
 12. on user login generate and store both access token and refresh token
 13. Implement the Authentication using JWT Guard and jwt passport strategy. Install packages like @nestjs/passport "passport" "passport-jwt" "@nestjs/jwt"
 14. create jwt stratgey by using passport startegy and create jwtAuth guard which extends AuthGuard so internally it valdiate the token and return payload by attaching req.user in it
-15 test the authentication usin @UseGuard(JwtGuard) on getProfile route.
+15. test the authentication usin @UseGuard(JwtGuard) on getProfile route.
+16. Create a super admin user via prisma seed file create file under prisma folder. then add the command tsx prisma/seed.ts in prisma.config.ts file
+17 install tsx as dev deps tsx helps to run ts file in node enviroment.
+18. use npx prisma db seed command to run the seed file this command is configured with the prisma itself, so instead creating normal npm script we prefer prisma script 
