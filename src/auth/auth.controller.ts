@@ -72,4 +72,29 @@ export class AuthController {
     });
     return { message: 'logged out from all devices successfully' }
   }
+
+  @Post('refresh-token')
+  async refreshToken(
+    @Req() req: express.Request,
+    @Res({ passthrough: true }) res: express.Response
+  ) {
+
+    const refreshToken = req.cookies?.refreshToken;
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token not found');
+    }
+
+    try {
+      const newAccessToken = await this.authService.refreshToken(refreshToken);
+      return { newAccessToken }
+    } catch (error) {
+      res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+      });
+      throw new UnauthorizedException(error.message);
+    }
+  }
+
 }

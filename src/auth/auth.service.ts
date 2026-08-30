@@ -30,16 +30,16 @@ export class AuthService {
 
         // save user login session in userSesison table
         const sessionId = crypto.randomUUID();
-
-        const accessToken = this.jwtService.sign({ userId: user.id, role: user.role, email: user.email, sessionId }, {
+        const userPayload = { userId: user.id, role: user.role, email: user.email, sessionId }
+        const accessToken = this.jwtService.sign(userPayload, {
             secret: process.env.ACCESS_TOKEN_SECRET,
-            expiresIn: '10m'
+            expiresIn: '30s'
         });
 
-        const refreshToken = this.jwtService.sign({ userId: user.id, sessionId }, {
+        const refreshToken = this.jwtService.sign(userPayload, {
             secret: process.env.REFRESH_TOKEN_SECRET,
-            expiresIn: '24h'
-        })
+            expiresIn: '60s'
+        });
 
         // hash refresh token
         const hashedToken = hashedRefreshToken(refreshToken);
@@ -72,7 +72,7 @@ export class AuthService {
             data: {
                 revokedAt: new Date()
             }
-        })
+        });
     }
 
     async logoutFromAllDevice(userId) {
@@ -84,5 +84,46 @@ export class AuthService {
                 revokedAt: new Date()
             }
         })
+    }
+
+    async refreshToken(refreshToken) {
+        // verify refresh token
+        const decode = this.jwtService.verify(refreshToken, {
+            secret: process.env.REFRESH_TOKEN_SECRET,
+
+        })
+        if (!decode) {
+            throw new UnauthorizedException('Invalid refresh token');
+        }
+
+        const hashed = hashedRefreshToken(refreshToken);
+
+        // find session in db
+        const session = await this.prisma.userSession.findFirst({
+            where: {
+                refreshTokenHash: hashed,
+                userId: decode.userId,
+                revokedAt: null,
+                expiresAt: {
+                    gt: new Date()
+                }
+            }
+        });
+
+        if (!session) {
+            throw new UnauthorizedException('session Expired please login!');
+        }
+
+        const newAccessToken = this.jwtService.sign({
+            userId: decode.userId,
+            role: decode.role,
+            email: decode.email,
+            sessionId: decode.sessionId
+        }, {
+            secret: process.env.ACCESS_TOKEN_SECRET,
+            expiresIn: '10m'
+        });
+
+        return newAccessToken;
     }
 }
