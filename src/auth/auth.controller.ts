@@ -1,7 +1,10 @@
-import { Controller, Post, Body, Headers, Res } from '@nestjs/common';
-import * as express from 'express';
+import { Controller, Post, Body, Headers, Res, UseGuards, Req, UnauthorizedException } from '@nestjs/common';
+import express from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/loginDto';
+import { JwtAuthGuard } from './guards/jwt.guard';
+import { CurrentUser, type JwtUserPayload } from './customDecorator/currentUser.decorator';
+
 
 @Controller('auth')
 export class AuthController {
@@ -14,7 +17,7 @@ export class AuthController {
     // { passthrough: true } allows you to set cookies on res and still return a value from the controller.
     // Without { passthrough: true }, if you call res.cookie(), NestJS assumes you are taking over the entire response handling, 
     // and it will not automatically send the value you return from the controller.
-    @Res({ passthrough: true }) res: express.Response,
+    @Res({ passthrough: true }) res: express.Response
   ) {
     const { accessToken, refreshToken } = await this.authService.login(loginDto, userAgent);
     res.cookie('refreshToken', refreshToken, {
@@ -24,5 +27,49 @@ export class AuthController {
       maxAge: 1 * 24 * 60 * 60 * 1000, // 1 day
     });
     return { accessToken };
+  }
+
+  @Post('logout/one-device')
+  @UseGuards(JwtAuthGuard)
+  async logout(
+    @CurrentUser() user: JwtUserPayload,
+    @Req() req: express.Request,
+    @Res({ passthrough: true }) res: express.Response
+  ) {
+    const refreshToken = req.cookies?.refreshToken;
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token not found');
+    }
+    const { userId, sessionId } = user;
+    await this.authService.logout(userId, sessionId);
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+
+    return { message: 'logged out successfully' }
+
+  }
+
+  @Post('logout/all-device')
+  @UseGuards(JwtAuthGuard)
+  async logoutFromAllDevice(
+    @CurrentUser() user: JwtUserPayload,
+    @Req() req: express.Request,
+    @Res({ passthrough: true }) res: express.Response
+  ) {
+    const refreshToken = req.cookies?.refreshToken;
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token not found');
+    }
+    const { userId } = user;
+    await this.authService.logoutFromAllDevice(userId);
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+    return { message: 'logged out from all devices successfully' }
   }
 }

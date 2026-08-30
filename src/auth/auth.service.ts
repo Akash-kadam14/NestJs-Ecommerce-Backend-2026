@@ -63,5 +63,26 @@ export class AuthService {
 
     }
 
+    async logout(userId, sessionId) {
+        await this.prisma.userSession.update({
+            where: {
+                sessionId,
+                userId
+            },
+            data: {
+                revokedAt: new Date()
+            }
+        })
+    }
 
+    async logoutFromAllDevice(userId) {
+        await this.prisma.userSession.updateMany({
+            where: {
+                userId
+            },
+            data: {
+                revokedAt: new Date()
+            }
+        })
+    }
 }
