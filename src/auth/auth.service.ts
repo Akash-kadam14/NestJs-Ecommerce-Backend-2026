@@ -28,12 +28,15 @@ export class AuthService {
             throw new UnauthorizedException('Invalid password');
         }
 
-        const accessToken = this.jwtService.sign({ sub: user.id, role: user.role, email: user.email }, {
+        // save user login session in userSesison table
+        const sessionId = crypto.randomUUID();
+
+        const accessToken = this.jwtService.sign({ userId: user.id, role: user.role, email: user.email, sessionId }, {
             secret: process.env.ACCESS_TOKEN_SECRET,
             expiresIn: '10m'
         });
 
-        const refreshToken = this.jwtService.sign({ sub: user.id }, {
+        const refreshToken = this.jwtService.sign({ userId: user.id, sessionId }, {
             secret: process.env.REFRESH_TOKEN_SECRET,
             expiresIn: '24h'
         })
@@ -44,8 +47,6 @@ export class AuthService {
         // identify device
         const device = getDevice(userAgent);
 
-        // save user login session in userSesison table
-        const sessionId = crypto.randomUUID();
 
         await this.prisma.userSession.create({
             data: {
