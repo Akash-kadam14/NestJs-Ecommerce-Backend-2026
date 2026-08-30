@@ -33,12 +33,12 @@ export class AuthService {
         const userPayload = { userId: user.id, role: user.role, email: user.email, sessionId }
         const accessToken = this.jwtService.sign(userPayload, {
             secret: process.env.ACCESS_TOKEN_SECRET,
-            expiresIn: '30s'
+            expiresIn: '10m'
         });
 
         const refreshToken = this.jwtService.sign(userPayload, {
             secret: process.env.REFRESH_TOKEN_SECRET,
-            expiresIn: '60s'
+            expiresIn: '1d'
         });
 
         // hash refresh token
