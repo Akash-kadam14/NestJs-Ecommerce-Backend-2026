@@ -15,4 +15,8 @@
 15. test the authentication usin @UseGuard(JwtGuard) on getProfile route.
 16. Create a super admin user via prisma seed file create file under prisma folder. then add the command tsx prisma/seed.ts in prisma.config.ts file
 17 install tsx as dev deps tsx helps to run ts file in node enviroment.
-18. use npx prisma db seed command to run the seed file this command is configured with the prisma itself, so instead creating normal npm script we prefer prisma script 
+18. use npx prisma db seed command to run the seed file this command is configured with the prisma itself, so instead creating normal npm script we prefer prisma script
+19. create logout from one and all device routes 
+20. implement access and refresh token api
+21. delete current device/browser from userSession table on logout from one device api and delete all sesison from logout all device api
+22. Install @nestjs/schedule and imported in app module as schedule.forRoot() to run the cronjob for remove expired sessions from userSession table
