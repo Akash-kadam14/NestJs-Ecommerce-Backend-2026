@@ -7,7 +7,6 @@ import { PrismaPg } from '@prisma/adapter-pg';
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
     constructor() {
         const connectionString = process.env.DATABASE_URL;
-        console.log(connectionString);
         // prismaPg used as adapter/bridge between postgresql pg driver and prisma client.
         const pgAdapter = new PrismaPg({
             connectionString,
