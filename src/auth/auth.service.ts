@@ -1,13 +1,15 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/loginDto';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { getDevice, hashedRefreshToken } from 'src/helper/commonHelper';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class AuthService {
+    private readonly logger = new Logger(AuthService.name);
     constructor(
         private readonly prisma: PrismaService,
         private readonly jwtService: JwtService
@@ -64,24 +66,19 @@ export class AuthService {
     }
 
     async logout(userId, sessionId) {
-        await this.prisma.userSession.update({
+        await this.prisma.userSession.delete({
             where: {
                 sessionId,
                 userId
-            },
-            data: {
-                revokedAt: new Date()
             }
-        });
+        })
     }
 
     async logoutFromAllDevice(userId) {
-        await this.prisma.userSession.updateMany({
+        await this.prisma.userSession.deleteMany({
             where: {
-                userId
-            },
-            data: {
-                revokedAt: new Date()
+                userId,
+
             }
         })
     }
@@ -103,7 +100,6 @@ export class AuthService {
             where: {
                 refreshTokenHash: hashed,
                 userId: decode.userId,
-                revokedAt: null,
                 expiresAt: {
                     gt: new Date()
                 }
@@ -125,5 +121,23 @@ export class AuthService {
         });
 
         return newAccessToken;
+    }
+
+    @Cron(CronExpression.EVERY_HOUR)
+    async cleanupExpiredSessions() {
+        try {
+            this.logger.log(`cron running....`);
+
+            const result = await this.prisma.userSession.deleteMany({
+                where: {
+                    expiresAt: {
+                        lt: new Date()
+                    }
+                }
+            })
+            this.logger.log(`Deleted ${result.count} expired sessions`);
+        } catch (error) {
+            this.logger.error('Failed to cleanup expired sessions', error.message);
+        }
     }
 }
