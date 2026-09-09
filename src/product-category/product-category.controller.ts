@@ -31,13 +31,23 @@ export class ProductCategoryController {
     return this.productCategoryService.getCategoryById(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductCategoryDto: UpdateProductCategoryDto) {
+  @Patch('updateCategory/:id')
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRoles.ADMIN)
+  updateCategory(@Param('id') id: string, @Body() updateProductCategoryDto: UpdateProductCategoryDto) {
     return this.productCategoryService.update(+id, updateProductCategoryDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productCategoryService.remove(+id);
+  @Patch('inActiveCategoryStatus/:id')
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRoles.ADMIN)
+  inActiveCategory(@Param('id') id: string) {
+    return this.productCategoryService.inActiveCategory(+id);
+  }
+  @Patch('activateCategoryStatus/:id')
+  @UseGuards(JwtAuthGuard)
+  @Roles(UserRoles.ADMIN)
+  activateCategoryStatus(@Param('id') id: string) {
+    return this.productCategoryService.activateCategoryStatus(+id);
   }
 }

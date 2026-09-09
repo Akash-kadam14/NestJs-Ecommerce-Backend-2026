@@ -62,7 +62,36 @@ export class ProductCategoryService {
     return { message: 'Category updated successfully' };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} productCategory`;
+  async inActiveCategory(id: number) {
+    const isCategoryExist = await this.prisma.category.findUnique({
+      where: { id, isActive: true }
+    });
+
+    if (!isCategoryExist) {
+      throw new NotFoundException('Category not found')
+    }
+
+    await this.prisma.category.update({
+      where: { id },
+      data: { isActive: false }
+    })
+
+    return { message: 'Category inActive successfully' };
+  }
+  async activateCategoryStatus(id: number) {
+    const isCategoryExist = await this.prisma.category.findUnique({
+      where: { id, isActive: false }
+    });
+
+    if (!isCategoryExist) {
+      throw new NotFoundException('Category not found')
+    }
+
+    await this.prisma.category.update({
+      where: { id },
+      data: { isActive: true }
+    })
+
+    return { message: 'Category active successfully' };
   }
 }
