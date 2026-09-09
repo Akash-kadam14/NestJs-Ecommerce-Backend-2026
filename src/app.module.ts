@@ -7,12 +7,14 @@ import { UsersModule } from './users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProductsModule } from './products/products.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ProductCategoryModule } from './product-category/product-category.module';
 @Module({
   imports: [ScheduleModule.forRoot(),
     AuthModule,
     UsersModule,
     PrismaModule,
-    ProductsModule
+    ProductsModule,
+    ProductCategoryModule
   ],
   controllers: [AppController],
   providers: [AppService],

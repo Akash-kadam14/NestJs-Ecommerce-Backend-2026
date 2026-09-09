@@ -44,6 +44,11 @@ model UserSession {
   expiresAt        DateTime
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  @@index([userId])
+  @@index([refreshTokenHash])
+  @@index([expiresAt])
+  @@index([userId, refreshTokenHash, expiresAt]) // composite index for finding session using multiple conditions
 }
 
 
@@ -51,8 +56,10 @@ model Category {
   id Int @id @default(autoincrement())
   name String
   slug String @unique
-  description String
+  description String ?
   isActive Boolean @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+    @@index([id, isActive]) // composite index
 }

@@ -20,3 +20,4 @@
 20. implement access and refresh token api
 21. delete current device/browser from userSession table on logout from one device api and delete all sesison from logout all device api
 22. Install @nestjs/schedule and imported in app module as schedule.forRoot() to run the cronjob for remove expired sessions from userSession table
+23. create a prisma schema for product category
