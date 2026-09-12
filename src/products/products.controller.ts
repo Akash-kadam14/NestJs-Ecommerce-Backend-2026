@@ -4,6 +4,8 @@ import { UserRoles } from '../auth/enum/roles.enum';
 import { Roles } from '../auth/customDecorator/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import { BulkCreateProductsDTO } from './dto/createProductDTO'
+import { Body } from '@nestjs/common';
 
 @Controller('products')
 export class ProductsController {
@@ -12,7 +14,7 @@ export class ProductsController {
   @Post('add-product')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRoles.ADMIN)
-  async addProduct() {
-    return this.productsService.addProduct();
+  async addProduct(@Body() bulkDto: BulkCreateProductsDTO) {
+    return this.productsService.addProduct(bulkDto.products);
   }
 }
