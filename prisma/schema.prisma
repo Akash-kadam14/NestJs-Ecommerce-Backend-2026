@@ -75,7 +75,7 @@ model Product {
   category  Category @relation(fields: [categoryId], references: [id])
   price Float
   description String?
-  image String?
+  imageUrl String?
   rating Float @default(0)
   stock Int
   isDeleted Boolean @default(false)
