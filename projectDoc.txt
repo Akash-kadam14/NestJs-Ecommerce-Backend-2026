@@ -21,3 +21,13 @@
 21. delete current device/browser from userSession table on logout from one device api and delete all sesison from logout all device api
 22. Install @nestjs/schedule and imported in app module as schedule.forRoot() to run the cronjob for remove expired sessions from userSession table
 23. create a prisma schema for product category
+24. create a crud for product category.
+25. create and migrate schema for products.
+26. for adding products in bulk we create a product dto which validate each products obj from array and we create another dto for bulk product add which take an array of product dto and use @ValidateNested({each:true}) and @Type(() => CreateProductDTO) to validate each product obj from array. 
+27. @Type(() => CreateProductDTO) (from class-transformer)
+Purpose: Transformation / Deserialization
+What it does: It takes each plain JavaScript {} object inside the array and converts (instantiates) it into a real TypeScript class instance of CreateProductDTO.
+Why it's needed: Without this, the items remain plain objects, and class-validator cannot read the decorator metadata (@IsString(), @IsNumber(), etc.) defined on the CreateProductDTO class.
+
+28. @ValidateNested(): Tells class-validator not to stop at the top level, but to go inside the nested object and execute all of its validation rules.
+{ each: true }: Tells class-validator that this property is an array, so it must loop through every single item in the array and validate each one individually.

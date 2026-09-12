@@ -1,4 +1,5 @@
-import { IsString, IsNumber, IsOptional } from "class-validator"
+import { IsString, IsNumber, IsOptional, IsArray, ValidateNested } from "class-validator"
+import { Type } from 'class-transformer';
 export class CreateProductDTO {
     @IsString()
     name: string
@@ -19,4 +20,12 @@ export class CreateProductDTO {
 
     @IsNumber()
     stock: number
+}
+
+// Reusing CreateProductDTO here:
+export class BulkCreateProductsDTO {
+    @IsArray()
+    @ValidateNested({ each: true })
+    @Type(() => CreateProductDTO)
+    products: CreateProductDTO[];
 }
